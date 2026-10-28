@@ -1,0 +1,102 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Portal de calificaciones</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-grid>
+    <ion-row>
+
+      <ion-col size="12" size-md="6">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Promedio general</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <h2><strong>{{ promedioGeneral | number:'1.2-2' }}</strong></h2>
+            <p>Calculado sobre {{ estudiantesFiltrados.length }} estudiantes</p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="12" size-md="6">
+        <ion-item>
+          <ion-input label="Nota mínima" label-placement="floating" placeholder="Ej: 3.0" type="number"
+            [(ngModel)]="notaMin" (ngModelChange)="aplicarFiltros()"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input label="Nota máxima" label-placement="floating" placeholder="Ej: 5.0" type="number"
+            [(ngModel)]="notaMax" (ngModelChange)="aplicarFiltros()"></ion-input>
+        </ion-item>
+
+        <ion-text color="danger" *ngIf="error"><p>{{ error }}</p></ion-text>
+
+        <ion-button expand="block" fill="outline" (click)="limpiarFiltros()">
+          Limpiar filtros
+        </ion-button>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+
+  <ion-list>
+    <ion-item *ngFor="let e of estudiantesFiltrados" button (click)="abrirModal(e)">
+
+      <ion-avatar slot="start">
+        <img [src]="'https://picsum.photos/seed/' + e.id + '/80'" alt="estudiante" />
+      </ion-avatar>
+
+      <ion-label>
+        <h2>{{ e.nombre }}</h2>
+        <p>{{ e.email }} · Nota: {{ e.nota | number:'1.1-1' }}</p>
+        <p *ngIf="e.observacion">
+          <ion-text color="medium"><small>Observación registrada</small></ion-text>
+        </p>
+      </ion-label>
+
+      <ion-badge slot="end" [color]="colorEstado(e)">
+        {{ estado(e) }}
+      </ion-badge>
+
+    </ion-item>
+  </ion-list>
+
+  <ion-text color="medium" *ngIf="estudiantesFiltrados.length === 0">
+    <p class="ion-text-center">No hay estudiantes en este rango de notas</p>
+  </ion-text>
+
+  <ion-modal [isOpen]="modalAbierto" (didDismiss)="cerrarModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Observación académica</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="cerrarModal()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding" *ngIf="seleccionado">
+        <h2>{{ seleccionado.nombre }}</h2>
+        <p>{{ seleccionado.email }}</p>
+        <p>
+          Nota: <strong>{{ seleccionado.nota | number:'1.1-1' }}</strong>
+          <ion-badge [color]="colorEstado(seleccionado)">{{ estado(seleccionado) }}</ion-badge>
+        </p>
+        <hr />
+
+        <ion-textarea label="Observación académica" label-placement="floating" fill="outline"
+          placeholder="Escribe una observación académica" [autoGrow]="true"
+          [(ngModel)]="observacionTexto"></ion-textarea>
+
+        <ion-button expand="block" (click)="guardarObservacion()">
+          Guardar
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>
